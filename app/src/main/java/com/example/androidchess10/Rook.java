@@ -120,7 +120,13 @@ public class Rook extends Piece {
 		board[r1][c1] = new Blank(new int[] {r1,c1});
 		this.hasMoved = true;
 	}
-	
 
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_rook_white;
+		}else{
+			return R.drawable.ic_rook_black;
+		}
+	}
 
 }

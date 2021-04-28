@@ -49,4 +49,12 @@ public class Knight extends Piece {
 		
 	}
 
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_knight_white;
+		}else{
+			return R.drawable.ic_knight_black;
+		}
+	}
+
 }

@@ -123,4 +123,11 @@ public class Queen extends Piece {
 		return true;
 	}
 
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_queen_white;
+		}else{
+			return R.drawable.ic_queen_black;
+		}
+	}
 }

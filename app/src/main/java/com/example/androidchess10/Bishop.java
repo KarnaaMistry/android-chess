@@ -90,4 +90,12 @@ public class Bishop extends Piece {
 		
 	}
 
+	public int getDrawable() {
+		if (this.getColor() == "white") {
+			return R.drawable.ic_bishop_white;
+		} else {
+			return R.drawable.ic_bishop_black;
+		}
+	}
+
 }

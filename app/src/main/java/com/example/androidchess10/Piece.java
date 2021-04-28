@@ -136,5 +136,5 @@ public abstract class Piece {
 	 */
 	public abstract boolean legalMove(Board chessboard, int[] dest);
 	
-
+	public abstract int getDrawable();
 }

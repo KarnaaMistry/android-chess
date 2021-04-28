@@ -187,10 +187,14 @@ public class King extends Piece {
 		}
 		
 		return true;
-		
-		
-		
-		
+	}
+
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_king_white;
+		}else{
+			return R.drawable.ic_king_black;
+		}
 	}
 
 }

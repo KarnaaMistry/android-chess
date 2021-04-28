@@ -428,5 +428,13 @@ public class Pawn extends Piece {
 		}
 		
 	}
+
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_pawn_white;
+		}else{
+			return R.drawable.ic_pawn_black;
+		}
+	}
 	
 }

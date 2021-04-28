@@ -31,5 +31,13 @@ public class Blank extends Piece {
 	public boolean legalMove(Board chessboard, int[] dest) {
 		return false;
 	}
+
+	public int getDrawable(){
+		if(this.getColor() == "white"){
+			return R.drawable.ic_white;
+		}else{
+			return R.drawable.ic_black;
+		}
+	}
 	
 }

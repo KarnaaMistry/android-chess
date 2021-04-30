@@ -62,7 +62,7 @@ public class Pawn extends Piece {
 	
 	
 	/**
-	 * Checks to see whether a pawn is able to take another piece, specifically checking for enpassant.
+	 * Checks to see whether a pawn is able to take another piece, specifically checking for en passant.
 	 * 
 	 * @param chessboard		<code>Board</code> on which the pawn is moving
 	 * @param dest				destination as given by a pair of row column coordinates in an <code>int</code> array
@@ -83,9 +83,9 @@ public class Pawn extends Piece {
 		
 		if (this.getColor().equals("white") ) {
 			
-			if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5]))) {
+			if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))) {
 				if (target instanceof Pawn) { 
-					if (r2+1 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+					if (r2+1 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 						return true;
 					}
 				}
@@ -97,9 +97,9 @@ public class Pawn extends Piece {
 			
 		} else {
 			
-			if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5]))) {
+			if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))) {
 				if (target instanceof Pawn) {
-					if (r2-1 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+					if (r2-1 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 						return true;
 					}
 				}
@@ -155,8 +155,8 @@ public class Pawn extends Piece {
 			else if (r2 == r1+1 && c1 == c2 && chessboard.positions[r2][c2].getName().equals("na")) {
 
 			}
-			else if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5])) 
-					&& r2 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+			else if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))
+					&& r2 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 
 			}
 			else if (r2 == r1+1 && c2 > 0 && c1 == c2-1 && chessboard.positions[r2][c2].getColor().equals("black")) {
@@ -193,8 +193,8 @@ public class Pawn extends Piece {
 			else if (r2 == r1-1 && c1 == c2 && chessboard.positions[r2][c2].getName().equals("na")) {
 				
 			}
-			else if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5])) 
-					&& r2 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+			else if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))
+					&& r2 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 
 				return true;
 			}
@@ -236,31 +236,31 @@ public class Pawn extends Piece {
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
 				if (c2 > 0 && c2 < 7 && (chessboard.positions[r2][c2-1].getName().equals("bp")) && (chessboard.positions[r2][c2+1].getName().equals("bp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2-1;
-					Chess.enpassloc[2] = r2-1;
-					Chess.enpassloc[3] = c2;
-					Chess.enpassloc[4] = r2;
-					Chess.enpassloc[5] = c2+1;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2-1;
+					MainActivity.enpassloc[2] = r2-1;
+					MainActivity.enpassloc[3] = c2;
+					MainActivity.enpassloc[4] = r2;
+					MainActivity.enpassloc[5] = c2+1;
 					this.firstMove = false;
 					return;
 				}
 				if (c2 > 0 && (chessboard.positions[r2][c2-1].getName().equals("bp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2-1;
-					Chess.enpassloc[2] = r2-1;
-					Chess.enpassloc[3] = c2;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2-1;
+					MainActivity.enpassloc[2] = r2-1;
+					MainActivity.enpassloc[3] = c2;
 					this.firstMove = false;
 					return;
 				}
 				if (c2 < 7 && (chessboard.positions[r2][c2+1].getName().equals("bp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2+1;
-					Chess.enpassloc[2] = r2-1;
-					Chess.enpassloc[3] = c2;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2+1;
+					MainActivity.enpassloc[2] = r2-1;
+					MainActivity.enpassloc[3] = c2;
 					this.firstMove = false;
 					return;
 				}
@@ -270,14 +270,14 @@ public class Pawn extends Piece {
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
 			}
-			else if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5])) 
-					&& r2 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+			else if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))
+					&& r2 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 				chessboard.positions[r2][c2] = this;
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
-				Chess.enpasscap = true;
-				Chess.enpasstarg[0] = r2-1;
-				Chess.enpasstarg[1] = c2;
+				MainActivity.enpasscap = true;
+				MainActivity.enpasstarg[0] = r2-1;
+				MainActivity.enpasstarg[1] = c2;
 			}
 			else if (r2 == r1+1 && c2 > 0 && c1 == c2-1 && chessboard.positions[r2][c2].getColor().equals("black")) {
 				chessboard.positions[r2][c2] = this;
@@ -305,31 +305,31 @@ public class Pawn extends Piece {
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
 				if (c2 > 0 && c2 < 7 && (chessboard.positions[r2][c2-1].getName().equals("wp")) && (chessboard.positions[r2][c2+1].getName().equals("wp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2-1;
-					Chess.enpassloc[2] = r2+1;
-					Chess.enpassloc[3] = c2;
-					Chess.enpassloc[4] = r2;
-					Chess.enpassloc[5] = c2+1;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2-1;
+					MainActivity.enpassloc[2] = r2+1;
+					MainActivity.enpassloc[3] = c2;
+					MainActivity.enpassloc[4] = r2;
+					MainActivity.enpassloc[5] = c2+1;
 					this.firstMove = false;
 					return;
 				}
 				if (c2 > 0 && (chessboard.positions[r2][c2-1].getName().equals("wp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2-1;
-					Chess.enpassloc[2] = r2+1;
-					Chess.enpassloc[3] = c2;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2-1;
+					MainActivity.enpassloc[2] = r2+1;
+					MainActivity.enpassloc[3] = c2;
 					this.firstMove = false;
 					return;
 				}
 				if (c2 < 7 && (chessboard.positions[r2][c2+1].getName().equals("wp"))) {
-					Chess.enpassant = 0;
-					Chess.enpassloc[0] = r2;
-					Chess.enpassloc[1] = c2+1;
-					Chess.enpassloc[2] = r2+1;
-					Chess.enpassloc[3] = c2;
+					MainActivity.enpassant = 0;
+					MainActivity.enpassloc[0] = r2;
+					MainActivity.enpassloc[1] = c2+1;
+					MainActivity.enpassloc[2] = r2+1;
+					MainActivity.enpassloc[3] = c2;
 					this.firstMove = false;
 					return;
 				}
@@ -339,14 +339,14 @@ public class Pawn extends Piece {
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
 			}
-			else if (Chess.enpassant == 1 && ((r1 == Chess.enpassloc[0] && c1 == Chess.enpassloc[1]) || (r1 == Chess.enpassloc[4] && c1 == Chess.enpassloc[5])) 
-					&& r2 == Chess.enpassloc[2] && c2 == Chess.enpassloc[3]) {
+			else if (MainActivity.enpassant == 1 && ((r1 == MainActivity.enpassloc[0] && c1 == MainActivity.enpassloc[1]) || (r1 == MainActivity.enpassloc[4] && c1 == MainActivity.enpassloc[5]))
+					&& r2 == MainActivity.enpassloc[2] && c2 == MainActivity.enpassloc[3]) {
 				chessboard.positions[r2][c2] = this;
 				this.setCoords(r2, c2);
 				chessboard.positions[r1][c1] = new Blank(new int[] {r1,c1});
-				Chess.enpasscap = true;
-				Chess.enpasstarg[0] = r2+1; 
-				Chess.enpasstarg[1] = c2;
+				MainActivity.enpasscap = true;
+				MainActivity.enpasstarg[0] = r2+1;
+				MainActivity.enpasstarg[1] = c2;
 			}
 			else if (r2 == r1-1 && c2 > 0 && c1 == c2-1 && chessboard.positions[r2][c2].getColor().equals("white")) {
 				chessboard.positions[r2][c2] = this;
@@ -395,7 +395,7 @@ public class Pawn extends Piece {
 		int r = this.getCoords()[0];
 		int c = this.getCoords()[1];
 
-		if (Chess.white_turn) {
+		if (MainActivity.white_turn) {
 			switch (P) {
 			case 'B':
 				chessboard.positions[r][c] = new Bishop("wB","white",new int[] {r,c});

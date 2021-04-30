@@ -33,11 +33,7 @@ public class Blank extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
-			return R.drawable.ic_white;
-		}else{
-			return R.drawable.ic_black;
-		}
+		return R.drawable.ic_blank;
 	}
 	
 }

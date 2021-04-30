@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Android Chess Group 10</string>
-    <string name="test_str">he watchin</string>
+    <string name="resign">Resign</string>
+    <string name="draw">Offer Draw</string>
+    <string name="undo">Undo</string>
+    <string name="aimov">AI Move</string>
+    <string name="replays">Replays</string>
 </resources>

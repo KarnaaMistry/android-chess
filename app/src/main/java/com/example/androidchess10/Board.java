@@ -18,6 +18,8 @@ public class Board {
 	 * objects on the board.
 	 */
 	public Piece[][] positions = new Piece[8][8];
+
+	//public int ID;
 	
 	/**
 	 * Initializes the board and fills it with pieces in their starting positions.
@@ -46,6 +48,8 @@ public class Board {
 		this.positions[7][5] = new Bishop("bB","black", new int[] {7,5});
 		this.positions[7][6] = new Knight("bN","black", new int[] {7,6});
 		this.positions[7][7] = new Rook("bR","black", new int[] {7,7});
+
+		//this.ID = (int) (Math.random() * 40000.0);
 	}
 	
 	/**

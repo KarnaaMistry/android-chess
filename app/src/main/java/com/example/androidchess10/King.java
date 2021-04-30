@@ -143,7 +143,7 @@ public class King extends Piece {
 		int rr = corner[0];
 		int cr = corner[1];
 		
-		if (Chess.isInCheck(chessboard, Chess.white_turn)) { 
+		if (Chess.isInCheck(chessboard, MainActivity.white_turn)) {
 			return false;
 		}
 		if (this.hasMoved) { 

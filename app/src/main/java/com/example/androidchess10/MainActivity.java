@@ -68,17 +68,25 @@ public class MainActivity extends AppCompatActivity {
 
     public static String recordingName;
 
-    public static String promoName;
+    public enum Promotype {
+        QUEEN,
+        BISHOP,
+        KNIGHT,
+        ROOK
+    }
+
+    public static Promotype blackPref;
+    public static Promotype whitePref;
 
     EditText recName;
 
     public static List<Recording> recordingList;
 
-    public static String THEBIGSTRING = "";
+    //public static String THEBIGSTRING = "";
 
     private static final String TAG = "MyActivity";
 
-    public static boolean promotiontime;
+    //public static boolean promotiontime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +100,11 @@ public class MainActivity extends AppCompatActivity {
 
         //recordingName = "";
         //recordingList = new ArrayList<Recording>();
+        whitePref = Promotype.QUEEN;
+        blackPref = Promotype.QUEEN;
+
+
+
         white_turn = true;
         enpassant = 2;
         enpassant_b = 2;
@@ -127,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.titletext);
 
         //title.setText("numrecs: " + recordingList.size());
+
+        updatePromoteIcon(MainActivity.this, true);
+        updatePromoteIcon(MainActivity.this, false);
 
         title.setText(R.string.Whitet);
 
@@ -215,63 +231,35 @@ public class MainActivity extends AppCompatActivity {
 
                         if ((white_turn && pc.getCoords()[0] == 7) || (!white_turn && pc.getCoords()[0] == 0)) {  //PROMOTION CHECKER
 
-/*
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("Choose a promotion:");
-                            if (white_turn) {
-                                builder.setIcon(R.drawable.ic_pawn_white);
-                            } else {
-                                builder.setIcon(R.drawable.ic_pawn_black);
-                            }
-
-
-                            builder.setItems(new CharSequence[]{"Queen", "Bishop", "Knight", "Rook"},  new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        switch (which) {
-                                            case 0:
-                                                Toast.makeText(MainActivity.this, "clicked 1", Toast.LENGTH_SHORT).show();
-                                                promoName = "Queen";
-                                                break;
-                                            case 1:
-                                                Toast.makeText(MainActivity.this, "clicked 2", Toast.LENGTH_SHORT).show();
-                                                promoName = "Bishop";
-                                                break;
-                                            case 2:
-                                                Toast.makeText(MainActivity.this, "clicked 3", Toast.LENGTH_SHORT).show();
-                                                promoName = "Knight";
-                                                break;
-                                            case 3:
-                                                Toast.makeText(MainActivity.this, "clicked 4", Toast.LENGTH_SHORT).show();
-                                                promoName = "Rook";
-                                                break;
-                                        }
-
-                                    }
-                                });
-                            builder.create().show();
-*/
-
-                            /*if (input.length() < 7) {
-                                Pawn p = (Pawn)pc;
-                                p.promote(chessboard, 'Q');
-                            }
-                            else {
-                                Pawn p = (Pawn)pc;
-                                p.promote(chessboard, input.charAt(6));
-                            }*/
-
-                            //Pawn p = (Pawn) pc;
                             Pawn p = (Pawn) pc;
-                            p.promote(currBoard, 'Q');
+                            if (white_turn) {
+
+                                if (whitePref == Promotype.ROOK) {
+                                    p.promote(currBoard, 'R');
+                                } else if (whitePref == Promotype.KNIGHT) {
+                                    p.promote(currBoard, 'N');
+                                } else if (whitePref == Promotype.BISHOP) {
+                                    p.promote(currBoard, 'B');
+                                } else {
+                                    p.promote(currBoard, 'Q');
+                                }
+
+                            } else {
+
+                                if (blackPref == Promotype.ROOK) {
+                                    p.promote(currBoard, 'R');
+                                } else if (blackPref == Promotype.KNIGHT) {
+                                    p.promote(currBoard, 'N');
+                                } else if (blackPref == Promotype.BISHOP) {
+                                    p.promote(currBoard, 'B');
+                                } else {
+                                    p.promote(currBoard, 'Q');
+                                }
+                            }
+
                         }
 
                     }
-
-                    //if (promotiontime && pc.getName().charAt(1) == 'p') {
-                    //    Pawn p = (Pawn) pc;
-                    //    p.promote(currBoard, 'Q');
-                    //}
 
                     //At this point, the move has been successful, and we update our game, and the recording, as well.
                     //We also update or reset all relevant values.
@@ -416,6 +404,8 @@ public class MainActivity extends AppCompatActivity {
         //recordingList = new ArrayList<Recording>();
         justDidUndo = false;
         white_turn = true;
+        whitePref = Promotype.QUEEN;
+        blackPref = Promotype.QUEEN;
         enpassant = 2;
         enpassant_b = 2;
         enpassloc = new int[] {-1, -1, -1, -1, -1, -1};
@@ -446,6 +436,8 @@ public class MainActivity extends AppCompatActivity {
         enpasslocStack.addFirst(new int[]{-1,-1,-1,-1,-1,-1});
 
         drawBoard(currBoard, boardGrid);
+        updatePromoteIcon(MainActivity.this, true);
+        updatePromoteIcon(MainActivity.this, false);
 
         TextView title = (TextView) findViewById(R.id.titletext);
         title.setText(R.string.Whitet);
@@ -517,6 +509,94 @@ public class MainActivity extends AppCompatActivity {
         //.setText("enps: " + enpassant);
 
         justDidUndo = true;
+
+    }
+
+    public void choosePromotion(View v) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Choose your preferred promotion type:");
+        if (white_turn) {
+            builder.setIcon(R.drawable.ic_pawn_white);
+        } else {
+            builder.setIcon(R.drawable.ic_pawn_black);
+        }
+
+
+        builder.setItems(new CharSequence[]{"Queen", "Bishop", "Knight", "Rook"},  new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int position) {
+
+                if (position == 3) {
+                    if (white_turn) {
+                        whitePref = Promotype.ROOK;
+                    } else {
+                        blackPref = Promotype.ROOK;
+                    }
+                    updatePromoteIcon(MainActivity.this, white_turn);
+                } else if (position == 2) {
+                    if (white_turn) {
+                        whitePref = Promotype.KNIGHT;
+                    } else {
+                        blackPref = Promotype.KNIGHT;
+                    }
+                    updatePromoteIcon(MainActivity.this, white_turn);
+                } else if (position == 1) {
+                    if (white_turn) {
+                        whitePref = Promotype.BISHOP;
+                    } else {
+                        blackPref = Promotype.BISHOP;
+                    }
+                    updatePromoteIcon(MainActivity.this, white_turn);
+                } else {
+                    if (white_turn) {
+                        whitePref = Promotype.QUEEN;
+                    } else {
+                        blackPref = Promotype.QUEEN;
+                    }
+                    updatePromoteIcon(MainActivity.this, white_turn);
+                }
+            }
+        });
+        builder.create().show();
+
+    }
+
+    public static void updatePromoteIcon(MainActivity m, boolean b) {
+
+        if (gameover) { return; }
+        ImageView img;
+
+        if (b) {
+            img = (ImageView) m.findViewById(R.id.imageViewW);
+
+            if (whitePref == Promotype.ROOK) {
+                img.setImageResource(R.drawable.ic_rook_white);
+            } else if (whitePref == Promotype.KNIGHT) {
+                img.setImageResource(R.drawable.ic_knight_white);
+            } else if (whitePref == Promotype.BISHOP) {
+                img.setImageResource(R.drawable.ic_bishop_white);
+            } else {
+                img.setImageResource(R.drawable.ic_queen_white);
+            }
+
+
+
+        } else {
+            img = (ImageView) m.findViewById(R.id.imageViewB);
+
+            if (blackPref == Promotype.ROOK) {
+                img.setImageResource(R.drawable.ic_rook_black);
+            } else if (blackPref == Promotype.KNIGHT) {
+                img.setImageResource(R.drawable.ic_knight_black);
+            } else if (blackPref == Promotype.BISHOP) {
+                img.setImageResource(R.drawable.ic_bishop_black);
+            } else {
+                img.setImageResource(R.drawable.ic_queen_black);
+            }
+        }
+
+
+
 
     }
 
@@ -736,21 +816,21 @@ public class MainActivity extends AppCompatActivity {
         List<Recording> recs = new ArrayList<Recording>(recordingList);
 
         List<String> filenames = new ArrayList<String>();
-        Log.d(TAG,"recording size: -h " + recs.size());
+        //(TAG,"recording size: -h " + recs.size());
         //Log.d(TAG,"second? " + recs.get(1).toString());
         for (Recording u : recs) {
             if (u == null) {
-                Log.d(TAG,"hello null world");
+               // Log.d(TAG,"hello null world");
             }
-            Log.d(TAG,u.toString());
-            Log.d(TAG,"u = " + u.getName());
+            //Log.d(TAG,u.toString());
+            //Log.d(TAG,"u = " + u.getName());
             filenames.add(u.getName() + "_" + sdf.format(u.getDate()) + ".dat");
         }
         File folder = context.getFilesDir();
         File[] list = null;
         list = folder.listFiles();
 
-        Log.d(TAG,"folder list size: " + list.length);
+        //Log.d(TAG,"folder list size: " + list.length);
 
 
         if (list != null) {
@@ -767,7 +847,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        Log.d(TAG,"finished saveRec");
+        //Log.d(TAG,"finished saveRec");
     }
 
 
@@ -848,8 +928,31 @@ public class MainActivity extends AppCompatActivity {
                     if (pc.getName().charAt(1) == 'p') {    //PROMOTION CHECKER
                         if ((white_turn && pc.getCoords()[0] == 7) || (!white_turn && pc.getCoords()[0] == 0)) {
 
-                            Pawn p = (Pawn)pc;
-                            p.promote(currBoard, 'Q');
+                            Pawn p = (Pawn) pc;
+                            if (white_turn) {
+
+                                if (whitePref == Promotype.ROOK) {
+                                    p.promote(currBoard, 'R');
+                                } else if (whitePref == Promotype.KNIGHT) {
+                                    p.promote(currBoard, 'N');
+                                } else if (whitePref == Promotype.BISHOP) {
+                                    p.promote(currBoard, 'B');
+                                } else {
+                                    p.promote(currBoard, 'Q');
+                                }
+
+                            } else {
+
+                                if (blackPref == Promotype.ROOK) {
+                                    p.promote(currBoard, 'R');
+                                } else if (blackPref == Promotype.KNIGHT) {
+                                    p.promote(currBoard, 'N');
+                                } else if (blackPref == Promotype.BISHOP) {
+                                    p.promote(currBoard, 'B');
+                                } else {
+                                    p.promote(currBoard, 'Q');
+                                }
+                            }
 
                         }
                     }

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Android Chess Group 10</string>
     <string name="resign">Resign</string>
-    <string name="draw">Offer Draw</string>
+    <string name="draw">Draw</string>
     <string name="undo">Undo</string>
     <string name="aimov">AI Move</string>
     <string name="replays">Recordings</string>
@@ -29,4 +29,7 @@
     <string name="checkB">Check - Black\'s turn</string>
     <string name="Whitet">White\'s turn</string>
     <string name="Blackt">Black\'s turn</string>
+    <string name="promo">Preferred Promotion</string>
+    <string name="contentW">white promotion choice</string>
+    <string name="contentB">black promotion choice</string>
 </resources>

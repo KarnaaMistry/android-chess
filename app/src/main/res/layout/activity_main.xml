@@ -26,20 +26,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="68dp"
-        android:text="@string/resign"
+        android:layout_marginBottom="16dp"
         android:onClick="resign"
+        android:text="@string/resign"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
+        android:id="@+id/promotion"
+        android:layout_width="103dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="66dp"
+        android:onClick="choosePromotion"
+        android:text="@string/promo"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/undo"
+        app:layout_constraintHorizontal_bias="0.523"
+        app:layout_constraintStart_toEndOf="@+id/draw" />
+
+    <Button
         android:id="@+id/draw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="83dp"
+        android:layout_height="43dp"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/draw"
+        android:layout_marginBottom="68dp"
         android:onClick="draw"
+        android:text="@string/draw"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -88,6 +101,30 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageViewW"
+        android:layout_width="42dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="8dp"
+        android:background="#cce6eb"
+        android:contentDescription="@string/contentW"
+        app:layout_constraintStart_toEndOf="@+id/resign"
+        app:layout_constraintTop_toBottomOf="@+id/promotion"
+        app:srcCompat="@drawable/ic_queen_white" />
+
+    <ImageView
+        android:id="@+id/imageViewB"
+        android:layout_width="42dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="28dp"
+        android:contentDescription="@string/contentB"
+        android:background="#cce6eb"
+        app:layout_constraintEnd_toStartOf="@+id/AI"
+        app:layout_constraintTop_toBottomOf="@+id/promotion"
+        app:srcCompat="@drawable/ic_queen_black" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

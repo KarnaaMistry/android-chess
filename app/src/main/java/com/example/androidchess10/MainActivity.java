@@ -1,24 +1,41 @@
 package com.example.androidchess10;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ActionBar;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
+import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
     final int highlight_color = Color.argb(88, 0, 255, 255);
 
+    public static boolean justDidUndo = false;
+
     public static boolean white_turn = true;
-    public static boolean checkmate = false;
+    public static boolean gameover = false;
     public static int enpassant = 2;
     public static int enpassant_b = 2;
     //public static int enpassant_x = 2;
@@ -39,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static int[] ini = {-1, -1};
     public static int[] end = {-1, -1};
-    public static ImageView selectedPiece;
+    public ImageView selectedPiece;
 
     public static Board currBoard;
     public static Deque<Board> gameStack;
@@ -47,11 +66,44 @@ public class MainActivity extends AppCompatActivity {
     public static Deque<Integer> enpassantStack;
     public static Deque<int[]> enpasslocStack;
 
+    public static String recordingName;
+
+    public static String promoName;
+
+    EditText recName;
+
+    public static List<Recording> recordingList;
+
+    public static String THEBIGSTRING = "";
+
+    private static final String TAG = "MyActivity";
+
+    public static boolean promotiontime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+        Context context = getApplicationContext();
+
+        recordingList = loadRecordings(context);
+
+
+
+        //recordingName = "";
+        //recordingList = new ArrayList<Recording>();
+        white_turn = true;
+        enpassant = 2;
+        enpassant_b = 2;
+        enpassloc = new int[] {-1, -1, -1, -1, -1, -1};
+        enpassloc_b = new int[] {-1, -1, -1, -1, -1, -1};
+        enpasscap = false;
+        enpasstarg = new int[] {-1, -1};
+        ini = new int[]{-1, -1};
+        end = new int[]{-1, -1};
+
         currBoard = new Board();
-        checkmate = false;
+        gameover = false;
         Resources r = getResources();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -74,16 +126,17 @@ public class MainActivity extends AppCompatActivity {
 
         TextView title = (TextView) findViewById(R.id.titletext);
 
+        //title.setText("numrecs: " + recordingList.size());
+
+        title.setText(R.string.Whitet);
+
         boardGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 Context context = getApplicationContext();
-                CharSequence text1 = "you clicked !";
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context, text1, duration);
-                toast.show();
 
-                if (checkmate) { return; }
+
+                if (gameover) { return; }
                 ImageView selectedImView = (ImageView) v;
                 if (selectedPiece == null) {   //player has not selected any of their own pieces
                     ini = translate(position);
@@ -92,13 +145,13 @@ public class MainActivity extends AppCompatActivity {
                         //if (firstPiece != null) { firstPiece.setColorFilter(null); }
                         selectedPiece = selectedImView;
                         selectedImView.setColorFilter(highlight_color, PorterDuff.Mode.SRC_ATOP);
-                        title.setText(r + " " + c);
+                        //title.setText(r + " " + c);
                     }
                     if (currBoard.positions[r][c].getColor().equals("black") && !white_turn) {
                         //if (firstPiece != null) { firstPiece.setColorFilter(null); }
                         selectedPiece = selectedImView;
                         selectedImView.setColorFilter(highlight_color, PorterDuff.Mode.SRC_ATOP);
-                        title.setText(r + " " + c);
+                        //title.setText(r + " " + c);
                     }
                     return;
 
@@ -113,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                         selectedImView.setColorFilter(highlight_color, PorterDuff.Mode.SRC_ATOP);
                         ini[0] = r2; ini[1] = c2;
                         end[0] = -1; end[1] = -1;
-                        title.setText(r2 + " " + c2);
+                        //title.setText(r2 + " " + c2);
                         return;
                     }
                     if (currBoard.positions[r2][c2].getColor().equals("black") && !white_turn) {
@@ -122,18 +175,18 @@ public class MainActivity extends AppCompatActivity {
                         selectedImView.setColorFilter(highlight_color, PorterDuff.Mode.SRC_ATOP);
                         ini[0] = r2; ini[1] = c2;
                         end[0] = -1; end[1] = -1;
-                        title.setText(r2 + " " + c2);
+                        //title.setText(r2 + " " + c2);
                         return;
                     }
 
 
                     end = translate(position);
-                    title.setText("(" + r1 + "," + c1 + ")->(" + r2 + "," + c2 + ")");
+                   // title.setText("(" + r1 + "," + c1 + ")->(" + r2 + "," + c2 + ")");
 
                     Piece pc = currBoard.positions[r1][c1];
 
                     if (!pc.legalMove(currBoard, end)) {
-                        title.setText("ooh, bad try -->(" + r2 + "," + c2 +")");
+                      //  title.setText("ooh, bad try -->(" + r2 + "," + c2 +")");
                         return;
                     }
 
@@ -154,12 +207,51 @@ public class MainActivity extends AppCompatActivity {
                         currBoard = dBackup;
                         enpassant = enpassant_b;
                         for (int h = 0; h < 6; h++) { enpassloc[h] = enpassloc_b[h]; }
-                        title.setText("o uput uslf inchk!");
+                       // title.setText("o uput uslf inchk!");
                         return;
                     }
 
-                    if (pc.getName().charAt(1) == 'p') {    //PROMOTION CHECKER
-                        if ((white_turn && pc.getCoords()[0] == 7) || (!white_turn && pc.getCoords()[0] == 0)) {
+                    if (pc.getName().charAt(1) == 'p') {
+
+                        if ((white_turn && pc.getCoords()[0] == 7) || (!white_turn && pc.getCoords()[0] == 0)) {  //PROMOTION CHECKER
+
+/*
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Choose a promotion:");
+                            if (white_turn) {
+                                builder.setIcon(R.drawable.ic_pawn_white);
+                            } else {
+                                builder.setIcon(R.drawable.ic_pawn_black);
+                            }
+
+
+                            builder.setItems(new CharSequence[]{"Queen", "Bishop", "Knight", "Rook"},  new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        switch (which) {
+                                            case 0:
+                                                Toast.makeText(MainActivity.this, "clicked 1", Toast.LENGTH_SHORT).show();
+                                                promoName = "Queen";
+                                                break;
+                                            case 1:
+                                                Toast.makeText(MainActivity.this, "clicked 2", Toast.LENGTH_SHORT).show();
+                                                promoName = "Bishop";
+                                                break;
+                                            case 2:
+                                                Toast.makeText(MainActivity.this, "clicked 3", Toast.LENGTH_SHORT).show();
+                                                promoName = "Knight";
+                                                break;
+                                            case 3:
+                                                Toast.makeText(MainActivity.this, "clicked 4", Toast.LENGTH_SHORT).show();
+                                                promoName = "Rook";
+                                                break;
+                                        }
+
+                                    }
+                                });
+                            builder.create().show();
+*/
+
                             /*if (input.length() < 7) {
                                 Pawn p = (Pawn)pc;
                                 p.promote(chessboard, 'Q');
@@ -168,8 +260,18 @@ public class MainActivity extends AppCompatActivity {
                                 Pawn p = (Pawn)pc;
                                 p.promote(chessboard, input.charAt(6));
                             }*/
+
+                            //Pawn p = (Pawn) pc;
+                            Pawn p = (Pawn) pc;
+                            p.promote(currBoard, 'Q');
                         }
+
                     }
+
+                    //if (promotiontime && pc.getName().charAt(1) == 'p') {
+                    //    Pawn p = (Pawn) pc;
+                    //    p.promote(currBoard, 'Q');
+                    //}
 
                     //At this point, the move has been successful, and we update our game, and the recording, as well.
                     //We also update or reset all relevant values.
@@ -192,23 +294,106 @@ public class MainActivity extends AppCompatActivity {
                     white_turn = !white_turn;
                     drawBoard(currBoard, boardGrid);
 
+                    if (white_turn) {
+                        title.setText(R.string.Whitet);
+                    } else {
+                        title.setText(R.string.Blackt);
+                    }
 
-                    title.setText("-D:"+enpassloc[0]+"|"+enpassloc[1]+"|"+enpassloc[2]+"|"+enpassloc[3]+"|"+enpassloc[4]+"|"+enpassloc[5]);
+                    justDidUndo = false;
+
+                    //title.setText("-D:"+enpassloc[0]+"|"+enpassloc[1]+"|"+enpassloc[2]+"|"+enpassloc[3]+"|"+enpassloc[4]+"|"+enpassloc[5]);
                     //title.setText("enps: " + enpassant);
 
                     if (isInCheck(currBoard, white_turn)) {
                         if (!canEscapeCheck(currBoard, white_turn)) {
-                            if (white_turn) {
-                                title.setText("CM! b wins");
-                            } else {
-                                title.setText("cM! w wins");
-                            }
 
-                            //game is over, someone has won via checkmate
-                            return;
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            if (!white_turn) {
+                                builder.setTitle("Checkmate, White wins! ");
+                                builder.setIcon(R.drawable.ic_king_white);
+                            } else {
+                                builder.setTitle("Checkmate, Black wins! ");
+                                builder.setIcon(R.drawable.ic_king_black);
+                            }
+                            builder.setMessage("\nSave the game recording?\n\n\nGame title:");
+                            recName = new EditText(MainActivity.this);
+
+
+                            builder.setView(recName);
+                            recName.setHint("     type here");
+                            recName.setHintTextColor(Color.rgb(213, 213, 213));
+
+                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    String name = recName.getText().toString();
+                                    recordingName = name;
+
+                                    //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+
+                                    if (name.length() < 1) {
+                                        Context context = getApplicationContext();
+                                        CharSequence text1 = "Empty title, auto-generated one";
+                                        int duration = Toast.LENGTH_SHORT;
+                                        Toast toast = Toast.makeText(context, text1, duration);
+                                        toast.show();
+
+                                        name = "chessRecording";
+                                    }
+
+                                    Recording rec = null;
+                                    if (!white_turn) {
+                                        rec = new Recording(name, gameStack, Recording.Outcome.WHITE_WIN_MATE);
+                                    } else {
+                                        rec = new Recording(name, gameStack, Recording.Outcome.BLACK_WIN_MATE);
+                                    }
+
+                                    //String myDate = sdf.format(rec.getDate());
+
+                                    //dialog.dismiss();
+
+                                    //Log.d(TAG,"new recording bt to be added = " + rec.toString());
+
+                                    recordingList.add(rec);
+
+                                    saveRecordings(getApplicationContext());
+                                    Context context = getApplicationContext();
+                                    CharSequence text1 = "Recording saved";
+                                    int duration = Toast.LENGTH_SHORT;
+                                    Toast toast = Toast.makeText(context, text1, duration);
+                                    toast.show();
+
+                                    beginAnew();
+
+                                }
+                            });
+                            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    beginAnew();
+                                }
+                            });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                public void onCancel(DialogInterface dialog) {
+                                    beginAnew();
+                                }
+                            });
+
+                            dialog.setCanceledOnTouchOutside(true);
+                            dialog.show();
+                            gameover = true;
+
                         }
-                        //System.out.println("Check\n");
-                        //Find a way to indicate check????
+                        if (!gameover) {
+                            if (white_turn) {
+                                title.setText(R.string.checkW);
+                            } else {
+                                title.setText(R.string.checkB);
+                            }
+                        }
+
                     }
 
                 }
@@ -216,6 +401,59 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+
+    }
+
+    public void beginAnew() {
+        //this.recreate();
+        Context context = getApplicationContext();
+        recordingList = loadRecordings(context);
+
+
+
+        //recordingName = "";
+        //recordingList = new ArrayList<Recording>();
+        justDidUndo = false;
+        white_turn = true;
+        enpassant = 2;
+        enpassant_b = 2;
+        enpassloc = new int[] {-1, -1, -1, -1, -1, -1};
+        enpassloc_b = new int[] {-1, -1, -1, -1, -1, -1};
+        enpasscap = false;
+        enpasstarg = new int[] {-1, -1};
+        ini = new int[]{-1, -1};
+        end = new int[]{-1, -1};
+
+        currBoard = new Board();
+        gameover = false;
+        Resources r = getResources();
+        //super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_main);
+
+        pieceAdapter = new PieceAdapter(this);
+        GridView boardGrid = (GridView) findViewById(R.id.board);
+        boardGrid.setAdapter(pieceAdapter);
+
+        gameStack = new ArrayDeque<Board>();
+        enpassantStack = new ArrayDeque<Integer>();
+        enpasslocStack = new ArrayDeque<int[]>();
+
+        Board initialBoardCopy = new Board();
+        gameStack.addFirst(initialBoardCopy);
+        int k = enpassant;
+        enpassantStack.addFirst(k);
+        enpasslocStack.addFirst(new int[]{-1,-1,-1,-1,-1,-1});
+
+        drawBoard(currBoard, boardGrid);
+
+        TextView title = (TextView) findViewById(R.id.titletext);
+        title.setText(R.string.Whitet);
+
+        //.setText("NNumrecs: " + recordingList.size());
+
+        //Log.d(TAG, "began anew");
+
     }
 
     public static int[] translate(int position){
@@ -242,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void undoMove(View v) {
-        if (checkmate) { return; }
+        if (gameover || justDidUndo) { return; }
         if (gameStack.isEmpty() || gameStack.size() < 2) { return; }
         if (selectedPiece != null) { selectedPiece.setColorFilter(null); }
         selectedPiece = null;
@@ -257,6 +495,8 @@ public class MainActivity extends AppCompatActivity {
         ////for (int h = 0; h < 6; h++) { enlocPrev[h] = [h]; }
 
         white_turn = !white_turn;
+
+
         int k = enpassPrev;
         enpassant = k;
         for (int h = 0; h < 6; h++) { enpassloc[h] = enlocPrev[h]; }
@@ -267,15 +507,276 @@ public class MainActivity extends AppCompatActivity {
 
 
         TextView title = (TextView) findViewById(R.id.titletext);
-        title.setText("-F:" + enpassloc[0]+"|"+enpassloc[1]+"|"+enpassloc[2]+"|"+enpassloc[3]+"|"+enpassloc[4]+"|"+enpassloc[5]);
+
+        if (white_turn) {
+            title.setText(R.string.Whitet);
+        } else {
+            title.setText(R.string.Blackt);
+        }
+        //title.setText("-F:" + enpassloc[0]+"|"+enpassloc[1]+"|"+enpassloc[2]+"|"+enpassloc[3]+"|"+enpassloc[4]+"|"+enpassloc[5]);
         //.setText("enps: " + enpassant);
+
+        justDidUndo = true;
+
+    }
+
+
+    public void resign(View v) {
+
+        if (gameover) { return; }
+        gameover = true;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (!white_turn) {
+            builder.setTitle("White wins!  (Black resigned)");
+            builder.setIcon(R.drawable.ic_king_white);
+        } else {
+            builder.setTitle("Black wins!  (White resigned)");
+            builder.setIcon(R.drawable.ic_king_black);
+        }
+        builder.setMessage("\nSave the game recording?\n\n\nGame title:");
+        recName = new EditText(this);
+
+
+        builder.setView(recName);
+        recName.setHint("     type here");
+        recName.setHintTextColor(Color.rgb(213, 213, 213));
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String name = recName.getText().toString();
+                recordingName = name;
+
+                //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+
+                if (name.length() < 1) {
+                    Context context = getApplicationContext();
+                    CharSequence text1 = "Empty title, auto-generated one";
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, text1, duration);
+                    toast.show();
+
+                    name = "chessRecording";
+                }
+
+                Recording rec = null;
+                if (!white_turn) {
+                    rec = new Recording(name, gameStack, Recording.Outcome.WHITE_WIN_RES);
+                } else {
+                    rec = new Recording(name, gameStack, Recording.Outcome.BLACK_WIN_RES);
+                }
+
+                //String myDate = sdf.format(rec.getDate());
+
+                //dialog.dismiss();
+
+                //Log.d(TAG,"new recording bt to be added = " + rec.toString());
+
+                recordingList.add(rec);
+
+                saveRecordings(getApplicationContext());
+
+                Context context = getApplicationContext();
+                CharSequence text1 = "Recording saved";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text1, duration);
+                toast.show();
+
+                beginAnew();
+
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                beginAnew();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                beginAnew();
+            }
+        });
+
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+
 
     }
 
 
 
+
+
+    public void draw(View v) {
+
+        if (gameover) { return; }
+        gameover = true;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Draw!");
+        builder.setMessage("\nSave the game recording?\n\n\nGame title:");
+        recName = new EditText(this);
+
+
+        builder.setView(recName);
+        builder.setIcon(R.drawable.ic_king_gray);
+        recName.setHint("     type here");
+        recName.setHintTextColor(Color.rgb(213, 213, 213));
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                String name = recName.getText().toString();
+                recordingName = name;
+
+                //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+
+                if (name.length() < 1) {
+                    Context context = getApplicationContext();
+                    CharSequence text1 = "Empty title, auto-generated one";
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, text1, duration);
+                    toast.show();
+
+                    name = "chessRecording";
+                }
+
+
+
+                Recording rec = new Recording(name, gameStack, Recording.Outcome.DRAW);
+
+                //String myDate = sdf.format(rec.getDate());
+
+                //dialog.dismiss();
+
+                //Log.d(TAG,"new recording bt to be added = " + rec.toString());
+
+                recordingList.add(rec);
+
+                saveRecordings(getApplicationContext());
+
+                Context context = getApplicationContext();
+                CharSequence text1 = "Recording saved";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text1, duration);
+                toast.show();
+
+                beginAnew();
+
+
+
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                beginAnew();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                beginAnew();
+            }
+        });
+
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+
+    }
+
+
+    public void toReplay(View v) {
+
+        Intent intent = new Intent(MainActivity.this, ReplayListActivity.class);
+        beginAnew();
+        startActivity(intent);
+
+
+    }
+
+
+
+
+    public static List<Recording> loadRecordings(Context context) {
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+        List<Recording> out = new ArrayList<Recording>();
+
+        List<String> dataFiles = new ArrayList<String>();
+        File folder = new File(String.valueOf(context.getFilesDir()));
+        File[] list = null;
+        list = folder.listFiles();
+        if (list != null) {
+            for (File file : list) {
+                if (file.isFile()) {
+                    dataFiles.add(file.getName());
+                }
+            }
+        }
+
+        for (String str : dataFiles) {
+           // Log.d(TAG,"datafilename : " + str);
+            Recording u = null;
+            try {
+                u = Recording.readRecording(str, context);
+            } catch (ClassNotFoundException | IOException e) {
+               // Log.d(TAG,"IO Exception in loadRecordings(readrecordings)");
+               // Log.d(TAG,e.getMessage());
+            }
+            out.add(u);
+        }
+
+        //Log.d(TAG,"finished loadRec");
+
+        return out;
+    }
+
+    public static void saveRecordings(Context context) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+        List<Recording> recs = new ArrayList<Recording>(recordingList);
+
+        List<String> filenames = new ArrayList<String>();
+        Log.d(TAG,"recording size: -h " + recs.size());
+        //Log.d(TAG,"second? " + recs.get(1).toString());
+        for (Recording u : recs) {
+            if (u == null) {
+                Log.d(TAG,"hello null world");
+            }
+            Log.d(TAG,u.toString());
+            Log.d(TAG,"u = " + u.getName());
+            filenames.add(u.getName() + "_" + sdf.format(u.getDate()) + ".dat");
+        }
+        File folder = context.getFilesDir();
+        File[] list = null;
+        list = folder.listFiles();
+
+        Log.d(TAG,"folder list size: " + list.length);
+
+
+        if (list != null) {
+            for (File file : list) {
+                if (!filenames.contains(file.getName())) {
+                    file.delete();
+                }
+            }
+        }
+        for (Recording u : recs) {
+            try {
+                Recording.writeRecording(u, context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d(TAG,"finished saveRec");
+    }
+
+
+
+
+
+
     public void AIMove(View v) {
-        if (checkmate) { return; }
+        if (gameover) { return; }
         String color;
         if (white_turn) { color = "white"; }
         else { color = "black"; }
@@ -285,6 +786,8 @@ public class MainActivity extends AppCompatActivity {
         for (int h = 0; h < 6; h++) { enpassloc_b[h] = enpassloc[h]; }
 
         List<Integer[]> pieces = new ArrayList<Integer[]>();
+
+
         for (int r0 = 0; r0 < 8; r0++) {
             for (int c0 = 0; c0 < 8; c0++) {
 
@@ -304,8 +807,14 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
                     //Board theBackup = backupBoard(currBoard);
-                    end[0] = i;
-                    end[1] = j;
+                    if (color.equals("white")) {
+                        end[0] = i;
+                        end[1] = j;
+                    } else {
+                        end[0] = 8-1-i;
+                        end[1] = 8-1-j;
+                    }
+
                     Piece pc = currBoard.positions[r][c];  //Candidate piece that may do a successful move.
                     if (!pc.legalMove(currBoard, end)) {
                         continue;
@@ -369,28 +878,108 @@ public class MainActivity extends AppCompatActivity {
                     selectedPiece = null;
 
                     white_turn = !white_turn;
+                    TextView title = (TextView) findViewById(R.id.titletext);
+                    if (white_turn) {
+                        title.setText(R.string.Whitet);
+                    } else {
+                        title.setText(R.string.Blackt);
+                    }
+
                     GridView boardGrid = (GridView) findViewById(R.id.board);
                     drawBoard(currBoard, boardGrid);
-                    TextView title = (TextView) findViewById(R.id.titletext);
 
-                    title.setText("suc AI, e:(" + r + "," + c + ")->(" + end[0] + "," + end[1]);
+
+                    //title.setText("suc AI, e:(" + r + "," + c + ")->(" + end[0] + "," + end[1]);
 
                     if (isInCheck(currBoard, white_turn)) {
                         if (!canEscapeCheck(currBoard, white_turn)) {
-                            if (white_turn) {
-                                title.setText("CM! b wins");
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            if (!white_turn) {
+                                builder.setTitle("Checkmate, White wins! ");
+                                builder.setIcon(R.drawable.ic_king_white);
                             } else {
-                                title.setText("cM! w wins");
+                                builder.setTitle("Checkmate, Black wins! ");
+                                builder.setIcon(R.drawable.ic_king_black);
                             }
+                            builder.setMessage("\nSave the game recording?\n\n\nGame title:");
+                            recName = new EditText(MainActivity.this);
 
-                            //game is over, someone has won via checkmate
-                            checkmate = true;
-                            return;
+
+                            builder.setView(recName);
+                            recName.setHint("     type here");
+                            recName.setHintTextColor(Color.rgb(213, 213, 213));
+
+                            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    String name = recName.getText().toString();
+                                    recordingName = name;
+
+                                    //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+
+                                    if (name.length() < 1) {
+                                        Context context = getApplicationContext();
+                                        CharSequence text1 = "Empty title, auto-generated one";
+                                        int duration = Toast.LENGTH_SHORT;
+                                        Toast toast = Toast.makeText(context, text1, duration);
+                                        toast.show();
+
+                                        name = "chessRecording";
+                                    }
+
+                                    Recording rec = null;
+                                    if (!white_turn) {
+                                        rec = new Recording(name, gameStack, Recording.Outcome.WHITE_WIN_MATE);
+                                    } else {
+                                        rec = new Recording(name, gameStack, Recording.Outcome.BLACK_WIN_MATE);
+                                    }
+
+                                    //String myDate = sdf.format(rec.getDate());
+
+                                    //dialog.dismiss();
+
+                                    //Log.d(TAG,"new recording bt to be added = " + rec.toString());
+
+                                    recordingList.add(rec);
+
+                                    saveRecordings(getApplicationContext());
+                                    Context context = getApplicationContext();
+                                    CharSequence text1 = "Recording saved";
+                                    int duration = Toast.LENGTH_SHORT;
+                                    Toast toast = Toast.makeText(context, text1, duration);
+                                    toast.show();
+
+                                    beginAnew();
+
+                                }
+                            });
+                            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    beginAnew();
+                                }
+                            });
+
+                            AlertDialog dialog = builder.create();
+                            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                public void onCancel(DialogInterface dialog) {
+                                    beginAnew();
+                                }
+                            });
+
+                            dialog.setCanceledOnTouchOutside(true);
+                            dialog.show();
+                            gameover = true;
                         }
-                        //System.out.println("Check\n");
-                        //Find a way to indicate check????
-                    }
+                        if (!gameover) {
+                            if (white_turn) {
+                                title.setText(R.string.checkW);
+                            } else {
+                                title.setText(R.string.checkB);
+                            }
+                        }
 
+
+                    }
+                    justDidUndo = false;
                     return;
 
                 }
@@ -540,5 +1129,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    protected void onRecreate(Bundle savedInstanceState) {
+        Log.d(TAG,"did an onRecreate");
+        saveRecordings(getApplicationContext());
+    }
+
+    protected void onDestroy(Bundle savedInstanceState) {
+        Log.d(TAG,"did an onRecreate");
+        saveRecordings(getApplicationContext());
+    }
 
 }

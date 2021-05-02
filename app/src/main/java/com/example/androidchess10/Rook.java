@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Rook is the class that contains the Rook object which handles rook specific interactions on the board.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Rook extends Piece {
+public class Rook extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 1602647007666843103L;
 	
 	/**
 	 * A <code>boolean</code> that is <code>true</code> if this rook has ever moved during the game;
@@ -122,7 +126,7 @@ public class Rook extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_rook_white;
 		}else{
 			return R.drawable.ic_rook_black;

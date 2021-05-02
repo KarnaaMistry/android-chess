@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * A subclass of piece representing a blank piece with no information stored besides coordinates.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Blank extends Piece {
+public class Blank extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 7056784357738700305L;
 	
 	/**
 	 * Creates a blank piece at the given coordinates.

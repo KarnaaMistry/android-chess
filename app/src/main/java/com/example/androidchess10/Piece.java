@@ -1,12 +1,16 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Piece is the superclass class from which all other piece types are subclasses of.
  * 
  * @author Fin Herbig
  * @author Karnaa Mistry
  */
-public abstract class Piece {
+public abstract class Piece implements Serializable {
+
+	private static final long serialVersionUID = 4142335536754246120L;
 	
 	/**
 	 * A <code>String</code> holding the text to be displayed on the board, usually the

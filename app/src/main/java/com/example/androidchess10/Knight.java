@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Knight is the class that contains the Knight object which handles knight specific interactions on the board.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Knight extends Piece {
+public class Knight extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 1763105225422182372L;
 	
 	/**
 	 * Initializes the knight with a given name, a color, and a position on the board.
@@ -50,7 +54,7 @@ public class Knight extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_knight_white;
 		}else{
 			return R.drawable.ic_knight_black;

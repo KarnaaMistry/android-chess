@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Pawn is the class that contains the Pawn object which handles pawn specific interactions on the board.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Pawn extends Piece {
+public class Pawn extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 8273375380653677154L;
 	
 	/**
 	 * A <code>boolean</code> that is <code>true</code> when this pawn has not yet had its first move;
@@ -430,7 +434,7 @@ public class Pawn extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_pawn_white;
 		}else{
 			return R.drawable.ic_pawn_black;

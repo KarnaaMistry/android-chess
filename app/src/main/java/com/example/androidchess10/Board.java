@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Board is the class that holds the Board object and all of its interactions which include:
  * <ul>
@@ -11,7 +13,9 @@ package com.example.androidchess10;
  * @author Fin Herbig
  * @author Karnaa Mistry
  */
-public class Board {
+public class Board implements Serializable {
+
+	private static final long serialVersionUID = 4357568706761740117L;
 	
 	/**
 	 * The <code>Piece</code> double array that stores references to the <code>Piece</code>

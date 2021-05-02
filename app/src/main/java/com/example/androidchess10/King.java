@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * King is the class that contains the King object which handles king specific interactions on the board.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class King extends Piece {
+public class King extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 3838888163315521525L;
 	
 	/**
 	 * A <code>boolean</code> that is <code>true</code> if this king has ever moved during the game;
@@ -190,7 +194,7 @@ public class King extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_king_white;
 		}else{
 			return R.drawable.ic_king_black;

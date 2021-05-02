@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Bishop is the class that contains the Bishop object which handles bishop specific interactions on the board.
  * 
@@ -7,7 +9,9 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Bishop extends Piece {
+public class Bishop extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 4344842854462284667L;
 	
 	/**
 	 * Initializes the bishop with a given name, a color, and a position on the board.
@@ -90,10 +94,10 @@ public class Bishop extends Piece {
 		
 	}
 
-	public int getDrawable() {
-		if (this.getColor() == "white") {
+	public int getDrawable(){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_bishop_white;
-		} else {
+		}else{
 			return R.drawable.ic_bishop_black;
 		}
 	}

@@ -1,5 +1,7 @@
 package com.example.androidchess10;
 
+import java.io.Serializable;
+
 /**
  * Queen is the class that contains the Queen object which handles queen specific interactions on the board.
  * 
@@ -7,7 +9,11 @@ package com.example.androidchess10;
  * @author Karnaa Mistry
  * @see Piece
  */
-public class Queen extends Piece {
+public class Queen extends Piece implements Serializable {
+
+	private static final long serialVersionUID = 4605653870574033016L;
+
+
 	
 	/**
 	 * Initializes the queen with a given name, a color, and a position on the board.
@@ -124,7 +130,7 @@ public class Queen extends Piece {
 	}
 
 	public int getDrawable(){
-		if(this.getColor() == "white"){
+		if(this.getColor().equals("white")) {
 			return R.drawable.ic_queen_white;
 		}else{
 			return R.drawable.ic_queen_black;
